@@ -62,8 +62,8 @@ print_drm_info(int fd)
 		return (-1);
 	}
 
-	printf("    PCI vendor ID: %04x\n", vendor_id);
-	printf("    PCI device ID: %04x\n", device_id);
+	printf("    PCI vendor ID: 0x%04x\n", vendor_id);
+	printf("    PCI device ID: 0x%04x\n", device_id);
 
 	return (0);
 }
