@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <devq.h>
+#include <libdevq.h>
 
 #define	DRIDEV_DIR "/dev/dri"
 

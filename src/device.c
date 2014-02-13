@@ -11,7 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "devq.h"
+#include "libdevq.h"
 
 int
 devq_device_get_devpath_from_fd(int fd,

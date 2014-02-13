@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "devq.h"
+#include "libdevq.h"
 
 int
 devq_device_drm_get_drvname_from_fd(int fd,

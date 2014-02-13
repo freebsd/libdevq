@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-include_HEADERS = include/devq.h
+include_HEADERS = include/libdevq.h
 
 lib_LTLIBRARIES = libdevq.la
 
