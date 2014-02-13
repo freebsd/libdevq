@@ -3,7 +3,7 @@
 int	devq_device_get_devpath_from_fd(int fd,
 	    char *path, size_t *path_len);
 int	devq_device_get_pciid_from_fd(int fd,
-	    unsigned int *vendor_id, unsigned int *device_id);
+	    int *vendor_id, int *device_id);
 
 int	devq_device_drm_get_drvname_from_fd(int fd,
 	    char *driver_name, size_t *driver_name_len);

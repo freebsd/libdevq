@@ -15,7 +15,7 @@ int
 print_drm_info(int fd)
 {
 	int ret;
-	unsigned int vendor_id, device_id;
+	int vendor_id, device_id;
 	char *device_path, *driver_name;
 	size_t device_path_len, driver_name_len;
 

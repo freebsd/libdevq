@@ -83,7 +83,7 @@ out:
 
 int
 devq_device_get_pciid_from_fd(int fd,
-    unsigned int *vendor_id, unsigned int *device_id)
+    int *vendor_id, int *device_id)
 {
 	int i, ret, dev, domain, bus, slot, function;
 	char sysctl_name[32], sysctl_value[128];
