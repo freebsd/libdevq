@@ -8,7 +8,7 @@ AM_SILENT_RULES([yes])
 
 LT_INIT()
 
-AC_PROG_CC
+AC_PROG_CC_STDC
 
 AC_CONFIG_FILES([
 	Makefile
