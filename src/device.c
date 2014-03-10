@@ -1,15 +1,21 @@
-#include <sys/param.h>
-#include <sys/queue.h>
 #include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/sysctl.h>
 
 #include <errno.h>
-#include <kvm.h>
-#include <libprocstat.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+#if defined(HAVE_LIBPROCSTAT_H)
+# include <sys/param.h>
+# include <sys/queue.h>
+# include <sys/socket.h>
+# include <kvm.h>
+# include <libprocstat.h>
+#else
+# include <sys/stat.h>
+# include <dirent.h>
+#endif
 
 #include "libdevq.h"
 
@@ -17,6 +23,7 @@ int
 devq_device_get_devpath_from_fd(int fd,
     char *path, size_t *path_len)
 {
+#if defined(HAVE_LIBPROCSTAT_H)
 	int ret;
 	struct procstat *procstat;
 	struct kinfo_proc *kip;
@@ -79,6 +86,79 @@ out:
 	procstat_close(procstat);
 
 	return (ret);
+#else /* !defined(HAVE_LIBPROCSTAT_H) */
+	int ret, found;
+	DIR *dir;
+	struct stat st;
+	struct dirent *dp;
+	char tmp_path[256];
+	size_t tmp_path_len;
+
+	/*
+	 * FIXME: This function is specific to DRM devices.
+	 */
+#define DEVQ_DRIDEV_DIR "/dev/dri"
+
+	ret = fstat(fd, &st);
+	if (ret != 0)
+		return (-1);
+	if (!S_ISCHR(st.st_mode)) {
+		errno = EBADF;
+		return (-1);
+	}
+
+	dir = opendir(DEVQ_DRIDEV_DIR);
+	if (dir == NULL)
+		return (-1);
+
+	found = 0;
+	while ((dp = readdir(dir)) != NULL) {
+		struct stat tmp_st;
+
+		if (dp->d_name[0] == '.')
+			continue;
+
+		tmp_path_len = strlen(DEVQ_DRIDEV_DIR);
+		strcpy(tmp_path, DEVQ_DRIDEV_DIR);
+		tmp_path[tmp_path_len++] = '/';
+		tmp_path[tmp_path_len] = '\0';
+
+		strcpy(tmp_path + tmp_path_len, dp->d_name);
+		tmp_path_len += dp->d_namlen;
+		tmp_path[tmp_path_len] = '\0';
+
+		ret = stat(tmp_path, &tmp_st);
+		if (ret != 0)
+			continue;
+
+		if (st.st_dev  == tmp_st.st_dev &&
+		    st.st_ino  == tmp_st.st_ino) {
+			found = 1;
+			break;
+		}
+	}
+
+	closedir(dir);
+
+	if (!found) {
+		errno = EBADF;
+		return -(1);
+	}
+
+	if (path) {
+		if (*path_len < tmp_path_len) {
+			*path_len = tmp_path_len;
+			errno = ENOMEM;
+			return (-1);
+		}
+
+		memcpy(path, tmp_path, tmp_path_len);
+	}
+	if (path_len)
+		*path_len = tmp_path_len;
+
+	return (0);
+#endif /* defined(HAVE_LIBPROCSTAT_H) */
 }
 
 int

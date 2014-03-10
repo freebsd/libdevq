@@ -7,7 +7,6 @@ lib_LTLIBRARIES = libdevq.la
 libdevq_la_SOURCES = src/device.c					\
 		     src/device_drm.c
 libdevq_la_CPPFLAGS = -I$(top_srcdir)/include
-libdevq_la_LIBADD = -lprocstat
 
 bin_PROGRAMS = lsdri
 

@@ -10,6 +10,14 @@ LT_INIT()
 
 AC_PROG_CC_STDC
 
+AC_CHECK_HEADERS([libprocstat.h], [
+	AC_SEARCH_LIBS([procstat_open_sysctl], [procstat])
+	], [], [
+	#include <sys/param.h>
+	#include <sys/queue.h>
+	#include <sys/socket.h>
+	])
+
 AC_CONFIG_FILES([
 	Makefile
 	src/libdevq-1.0.pc
