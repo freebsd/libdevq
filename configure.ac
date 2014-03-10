@@ -1,4 +1,4 @@
-AC_INIT([libdevq],[0.1.0],[https://github.com/freebsd/libdevq],[libdevq])
+AC_INIT([libdevq],[0.0.1],[https://github.com/freebsd/libdevq],[libdevq])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_AUX_DIR([ac-aux])
 AC_CONFIG_MACRO_DIR([m4])
