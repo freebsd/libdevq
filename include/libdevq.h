@@ -24,6 +24,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _LIBDEVQ_H_
+#define _LIBDEVQ_H_
+
 #define	DEVQ_MAX_DEVS	16
 
 int	devq_device_get_devpath_from_fd(int fd,
@@ -33,3 +36,5 @@ int	devq_device_get_pciid_from_fd(int fd,
 
 int	devq_device_drm_get_drvname_from_fd(int fd,
 	    char *driver_name, size_t *driver_name_len);
+
+#endif /* _LIBDEVQ_H_ */
