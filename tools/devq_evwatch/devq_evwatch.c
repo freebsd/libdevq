@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jean-Sebastien Pedron <dumbbell@FreeBSD.org>
+ * Copyright (c) 2014 Baptiste Daroussin <bapt@FreeBSD.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,36 +24,52 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LIBDEVQ_H_
-#define _LIBDEVQ_H_
+#include <sys/types.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
 
-#define	DEVQ_MAX_DEVS	16
+#include <libdevq.h>
 
-int	devq_device_get_devpath_from_fd(int fd,
-	    char *path, size_t *path_len);
-int	devq_device_get_pciid_from_fd(int fd,
-	    int *vendor_id, int *device_id);
+int
+main(int argc, char **argv)
+{
+	struct devq_evmon *e;
+	struct devq_event *ev;
+	bool verbose = false;
 
-int	devq_device_drm_get_drvname_from_fd(int fd,
-	    char *driver_name, size_t *driver_name_len);
+	if (argc == 2 && strcmp(argv[1], "-v") == 0)
+		verbose = true;
 
-typedef enum {
-	DEVQ_ATTACHED = 1U,
-	DEVQ_DETACHED,
-	DEVQ_NOTICE,
-	DEVQ_UNKNOWN
-} devq_event_t;
+	e = devq_event_monitor_init();
 
-struct devq_evmon;
-struct devq_event;
+	while (devq_event_monitor_poll(e)) {
+		ev = devq_event_monitor_read(e);
+		if (ev == NULL)
+			break;
 
-struct devq_evmon *	devq_event_monitor_init(void);
-void			devq_event_monitor_fini(struct devq_evmon *);
-int			devq_event_monitor_get_fd(struct devq_evmon *);
-int			devq_event_monitor_poll(struct devq_evmon *);
-struct devq_event *	devq_event_monitor_read(struct devq_evmon *);
-devq_event_t		devq_event_get_type(struct devq_event *);
-const char *		devq_event_dump(struct devq_event *);
-void			devq_event_free(struct devq_event *);
+		switch (devq_event_get_type(ev)) {
+		case DEVQ_ATTACHED:
+			printf("New device attached\n");
+			break;
+		case DEVQ_DETACHED:
+			printf("A device has been detached\n");
+			break;
+		case DEVQ_NOTICE:
+			printf("Notice received\n");
+			break;
+		case DEVQ_UNKNOWN:
+			printf("Unknown event\n");
+			break;
+		}
+		
+		if (verbose)
+			printf("%s", devq_event_dump(ev));
+		devq_event_free(ev);
+	}
 
-#endif /* _LIBDEVQ_H_ */
+	devq_event_monitor_fini(e);
+
+	return (EXIT_SUCCESS);
+}
