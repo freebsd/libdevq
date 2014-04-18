@@ -193,6 +193,7 @@ devq_device_get_pciid_from_fd(int fd,
 {
 	int i, ret, dev, domain, bus, slot, function;
 	char sysctl_name[32], sysctl_value[128];
+	const char *busid_format;
 	size_t sysctl_value_len;
 
 	/*
@@ -215,14 +216,29 @@ devq_device_get_pciid_from_fd(int fd,
 	 */
 	sprintf(sysctl_name, "hw.dri.%d.busid", dev);
 
+	busid_format = "pci:%d:%d:%d.%d";
 	sysctl_value_len = sizeof(sysctl_value);
 	memset(sysctl_value, 0, sysctl_value_len);
 	ret = sysctlbyname(sysctl_name, sysctl_value, &sysctl_value_len,
 	    NULL, 0);
+
+	if (ret != 0) {
+		/*
+		 * If hw.dri.$n.busid isn't available, fallback on
+		 * hw.dri.$n.name.
+		 */
+		busid_format = "%*s %*s pci:%d:%d:%d.%d";
+		sysctl_value_len = sizeof(sysctl_value);
+		memset(sysctl_value, 0, sysctl_value_len);
+		sprintf(sysctl_name, "hw.dri.%d.name", dev);
+		ret = sysctlbyname(sysctl_name, sysctl_value, &sysctl_value_len,
+		    NULL, 0);
+	}
+
 	if (ret != 0)
 		return (-1);
 
-	ret = sscanf(sysctl_value, "pci:%d:%d:%d.%d",
+	ret = sscanf(sysctl_value, busid_format,
 	    &domain, &bus, &slot, &function);
 	if (ret != 4) {
 		errno = ENOENT;
