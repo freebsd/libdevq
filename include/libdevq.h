@@ -29,14 +29,6 @@
 
 #define	DEVQ_MAX_DEVS	16
 
-int	devq_device_get_devpath_from_fd(int fd,
-	    char *path, size_t *path_len);
-int	devq_device_get_pciid_from_fd(int fd,
-	    int *vendor_id, int *device_id);
-
-int	devq_device_drm_get_drvname_from_fd(int fd,
-	    char *driver_name, size_t *driver_name_len);
-
 typedef enum {
 	DEVQ_ATTACHED = 1U,
 	DEVQ_DETACHED,
@@ -46,6 +38,14 @@ typedef enum {
 
 struct devq_evmon;
 struct devq_event;
+
+int	devq_device_get_devpath_from_fd(int fd,
+	    char *path, size_t *path_len);
+int	devq_device_get_pciid_from_fd(int fd,
+	    int *vendor_id, int *device_id);
+
+int	devq_device_drm_get_drvname_from_fd(int fd,
+	    char *driver_name, size_t *driver_name_len);
 
 struct devq_evmon *	devq_event_monitor_init(void);
 void			devq_event_monitor_fini(struct devq_evmon *);
