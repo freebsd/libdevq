@@ -7,7 +7,7 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([1.11 foreign subdir-objects no-dist-gzip dist-xz])
 AM_SILENT_RULES([yes])
 
-LT_INIT()
+LT_INIT([disable-static])
 
 AC_PROG_CC_STDC
 
