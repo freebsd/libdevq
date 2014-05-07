@@ -19,5 +19,5 @@ lsdri_SOURCES = tools/lsdri/lsdri.c
 lsdri_CPPFLAGS = -I$(top_srcdir)/include
 lsdri_LDADD = libdevq.la
 
-pkgconfigdir = $(libdir)/pkgconfig
+pkgconfigdir = $(prefix)/libdata/pkgconfig
 nodist_pkgconfig_DATA = src/libdevq-1.0.pc
