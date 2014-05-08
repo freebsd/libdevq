@@ -26,6 +26,25 @@ AC_CHECK_HEADERS([libprocstat.h], [
 	#include <sys/socket.h>
 	])
 
+# ----------------------------------------------------------------------------
+# Check if we want to build extra diagnostic programs
+
+AC_MSG_CHECKING([whether we should build diagnostic programs])
+AC_ARG_ENABLE([programs], [
+	AS_HELP_STRING([--enable-programs],
+		[enable diagnose programs (default is no)]),
+		with_programs=$enableval, with_program=no])
+
+if test "$enable_programs" = "yes"; then
+	AC_MSG_RESULT([yes])
+else
+	AC_MSG_RESULT([no])
+fi
+
+AM_CONDITIONAL(ENABLE_PROGRAMS, test "$enable_programs" = "yes")
+
+# ----------------------------------------------------------------------------
+
 AC_CONFIG_FILES([
 	Makefile
 	src/libdevq-1.0.pc
