@@ -10,7 +10,7 @@ libdevq_la_SOURCES = src/device.c					\
 libdevq_la_CPPFLAGS = -I$(top_srcdir)/include
 
 if ENABLE_PROGRAMS
-bin_PROGRAMS = devq_lsdri devq_evwatch
+bin_PROGRAMS = devq-lsdri devq-evwatch
 endif
 
 devq_evwatch_SOURCES = tools/devq_evwatch/devq_evwatch.c
