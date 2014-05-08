@@ -32,8 +32,7 @@ AC_CHECK_HEADERS([libprocstat.h], [
 AC_MSG_CHECKING([whether we should build diagnostic programs])
 AC_ARG_ENABLE([programs],
 	[AS_HELP_STRING([--enable-programs],
-		[enable diagnose programs (default is no)])],
-		enable_programs=$enablevar, enable_programs=no)
+		[enable diagnose programs (default is no)])])
 
 if test "$enable_programs" = "yes"; then
 	AC_MSG_RESULT([yes])
