@@ -73,6 +73,7 @@ struct devq_evmon {
 struct devq_device {
 	devq_device_t type;
 	devq_class_t class;
+	char *path;
 };
 
 struct devq_event {
@@ -226,7 +227,7 @@ devq_event_get_type(struct devq_event *e)
 struct devq_device *
 devq_event_get_device(struct devq_event *e)
 {
-	const char *line;
+	const char *line, *walk;
 	int i;
 
 	if (e == NULL)
@@ -246,12 +247,18 @@ devq_event_get_device(struct devq_event *e)
 	e->device->class = DEVQ_CLASS_UNKNOWN;
 
 	line = e->raw + 1;
+	walk = line;
+	while (*walk != ' ')
+		walk++;
+	asprintf(&e->device->path, "/dev/%.*s", (int)(walk - line), line);
+
 	for (i = 0; hw_types[i].driver != NULL; i++) {
 		if (strncmp(line, hw_types[i].driver,
 		            strlen(hw_types[i].driver)) == 0 &&
 		    isdigit(*(line + strlen(hw_types[i].driver)))) {
 			e->device->type = hw_types[i].type;
 			e->device->class = hw_types[i].class;
+			break;
 		}
 	}
 
@@ -290,4 +297,14 @@ devq_device_get_class(struct devq_device *d)
 		return (DEVQ_CLASS_UNKNOWN);
 
 	return (d->class);
+}
+
+const char *
+devq_device_get_path(struct devq_device *d)
+{
+
+	if (d == NULL)
+		return (NULL);
+
+	return (d->path);
 }

@@ -73,6 +73,7 @@ main(int argc, char **argv)
 				printf("Unknown device attached\n");
 				break;
 			}
+			printf("Device path: %s\n", devq_device_get_path(dev));
 			break;
 		case DEVQ_DETACHED:
 			dev = devq_event_get_device(ev);
@@ -96,6 +97,7 @@ main(int argc, char **argv)
 				printf("Unknown device detached\n");
 				break;
 			}
+			printf("Device path: %s\n", devq_device_get_path(dev));
 			break;
 		case DEVQ_NOTICE:
 			printf("Notice received\n");

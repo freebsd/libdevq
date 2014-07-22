@@ -63,6 +63,7 @@ int		devq_device_drm_get_drvname_from_fd(int fd,
 		    char *driver_name, size_t *driver_name_len);
 devq_device_t	devq_device_get_type(struct devq_device *);
 devq_class_t	devq_device_get_class(struct devq_device *);
+const char *	devq_device_get_path(struct devq_device *);
 
 struct devq_evmon *	devq_event_monitor_init(void);
 void			devq_event_monitor_fini(struct devq_evmon *);
