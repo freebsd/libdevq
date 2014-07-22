@@ -36,22 +36,40 @@ typedef enum {
 	DEVQ_UNKNOWN
 } devq_event_t;
 
+typedef enum {
+	DEVQ_DEVICE_UNKNOWN = 1U,
+	DEVQ_DEVICE_KEYBOARD,
+	DEVQ_DEVICE_MOUSE,
+	DEVQ_DEVICE_JOYSTICK,
+	DEVQ_DEVICE_TOUCHPAD,
+	DEVQ_DEVICE_TOUCHSCREEN
+} devq_device_t;
+
+typedef enum {
+	DEVQ_CLASS_UNKNOWN = 1U,
+	DEVQ_CLASS_INPUT
+} devq_class_t;
+
 struct devq_evmon;
 struct devq_event;
+struct devq_device;
 
-int	devq_device_get_devpath_from_fd(int fd,
-	    char *path, size_t *path_len);
-int	devq_device_get_pciid_from_fd(int fd,
-	    int *vendor_id, int *device_id);
+int		devq_device_get_devpath_from_fd(int fd,
+		    char *path, size_t *path_len);
+int		devq_device_get_pciid_from_fd(int fd,
+		    int *vendor_id, int *device_id);
 
-int	devq_device_drm_get_drvname_from_fd(int fd,
-	    char *driver_name, size_t *driver_name_len);
+int		devq_device_drm_get_drvname_from_fd(int fd,
+		    char *driver_name, size_t *driver_name_len);
+devq_device_t	devq_device_get_type(struct devq_device *);
+devq_class_t	devq_device_get_class(struct devq_device *);
 
 struct devq_evmon *	devq_event_monitor_init(void);
 void			devq_event_monitor_fini(struct devq_evmon *);
 int			devq_event_monitor_get_fd(struct devq_evmon *);
 int			devq_event_monitor_poll(struct devq_evmon *);
 struct devq_event *	devq_event_monitor_read(struct devq_evmon *);
+struct devq_device *	devq_event_get_device(struct devq_event *);
 devq_event_t		devq_event_get_type(struct devq_event *);
 const char *		devq_event_dump(struct devq_event *);
 void			devq_event_free(struct devq_event *);

@@ -35,8 +35,25 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "libdevq.h"
+
+static struct hw_type {
+	const char *driver;
+	devq_device_t type;
+	devq_class_t class;
+} hw_types[] = {
+	{ "ukbd",  DEVQ_DEVICE_KEYBOARD,     DEVQ_CLASS_INPUT   },
+	{ "atkbd", DEVQ_DEVICE_KEYBOARD,     DEVQ_CLASS_INPUT   },
+	{ "ums",   DEVQ_DEVICE_MOUSE,        DEVQ_CLASS_INPUT   },
+	{ "psm",   DEVQ_DEVICE_MOUSE,        DEVQ_CLASS_INPUT   },
+	{ "uhid",  DEVQ_DEVICE_MOUSE,        DEVQ_CLASS_INPUT   },
+	{ "joy",   DEVQ_DEVICE_JOYSTICK,     DEVQ_CLASS_INPUT   },
+	{ "atp",   DEVQ_DEVICE_TOUCHPAD,     DEVQ_CLASS_INPUT   },
+	{ "uep",   DEVQ_DEVICE_TOUCHSCREEN,  DEVQ_CLASS_INPUT   },
+	{ NULL,	   DEVQ_DEVICE_UNKNOWN,      DEVQ_CLASS_UNKNOWN },
+};
 
 #define DEVD_SOCK_PATH "/var/run/devd.pipe"
 
@@ -53,8 +70,14 @@ struct devq_evmon {
 	size_t len;
 };
 
+struct devq_device {
+	devq_device_t type;
+	devq_class_t class;
+};
+
 struct devq_event {
 	int type;
+	struct devq_device *device;
 	char *raw;
 };
 
@@ -193,7 +216,46 @@ devq_event_monitor_read(struct devq_evmon *evm)
 devq_event_t
 devq_event_get_type(struct devq_event *e)
 {
+
+	if (e == NULL)
+		return (DEVQ_UNKNOWN);
+
 	return (e->type);
+}
+
+struct devq_device *
+devq_event_get_device(struct devq_event *e)
+{
+	const char *line;
+	int i;
+
+	if (e == NULL)
+		return (NULL);
+
+	if (e->type != DEVQ_ATTACHED && e->type != DEVQ_DETACHED)
+		return (NULL);
+
+	if (e->device != NULL)
+		return (e->device);
+
+	e->device = calloc(1, sizeof(struct devq_device *));
+	if (e->device == NULL)
+		return (NULL);
+
+	e->device->type = DEVQ_DEVICE_UNKNOWN;
+	e->device->class = DEVQ_CLASS_UNKNOWN;
+
+	line = e->raw + 1;
+	for (i = 0; hw_types[i].driver != NULL; i++) {
+		if (strncmp(line, hw_types[i].driver,
+		            strlen(hw_types[i].driver)) == 0 &&
+		    isdigit(*(line + strlen(hw_types[i].driver)))) {
+			e->device->type = hw_types[i].type;
+			e->device->class = hw_types[i].class;
+		}
+	}
+
+	return (e->device);
 }
 
 const char *
@@ -205,6 +267,27 @@ devq_event_dump(struct devq_event *e)
 void
 devq_event_free(struct devq_event *e)
 {
+	free(e->device);
 	free(e->raw);
 	free(e);
+}
+
+devq_device_t
+devq_device_get_type(struct devq_device *d)
+{
+
+	if (d == NULL)
+		return (DEVQ_DEVICE_UNKNOWN);
+
+	return (d->type);
+}
+
+devq_class_t
+devq_device_get_class(struct devq_device *d)
+{
+
+	if (d == NULL)
+		return (DEVQ_CLASS_UNKNOWN);
+
+	return (d->class);
 }

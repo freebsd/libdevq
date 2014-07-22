@@ -37,6 +37,7 @@ main(int argc, char **argv)
 {
 	struct devq_evmon *e;
 	struct devq_event *ev;
+	struct devq_device *dev;
 	bool verbose = false;
 
 	if (argc == 2 && strcmp(argv[1], "-v") == 0)
@@ -51,10 +52,50 @@ main(int argc, char **argv)
 
 		switch (devq_event_get_type(ev)) {
 		case DEVQ_ATTACHED:
-			printf("New device attached\n");
+			dev = devq_event_get_device(ev);
+			switch (devq_device_get_type(dev)) {
+			case DEVQ_DEVICE_JOYSTICK:
+				printf("Joystick attached\n");
+				break;
+			case DEVQ_DEVICE_TOUCHSCREEN:
+				printf("Touchscreen attached\n");
+				break;
+			case DEVQ_DEVICE_TOUCHPAD:
+				printf("Touchpad attached\n");
+				break;
+			case DEVQ_DEVICE_KEYBOARD:
+				printf("Keyboard attached\n");
+				break;
+			case DEVQ_DEVICE_MOUSE:
+				printf("Mouse attached\n");
+				break;
+			case DEVQ_DEVICE_UNKNOWN:
+				printf("Unknown device attached\n");
+				break;
+			}
 			break;
 		case DEVQ_DETACHED:
-			printf("A device has been detached\n");
+			dev = devq_event_get_device(ev);
+			switch (devq_device_get_type(dev)) {
+			case DEVQ_DEVICE_JOYSTICK:
+				printf("Joystick detached\n");
+				break;
+			case DEVQ_DEVICE_TOUCHSCREEN:
+				printf("Touchscreen detached\n");
+				break;
+			case DEVQ_DEVICE_TOUCHPAD:
+				printf("Touchpad detached\n");
+				break;
+			case DEVQ_DEVICE_KEYBOARD:
+				printf("Keyboard detached\n");
+				break;
+			case DEVQ_DEVICE_MOUSE:
+				printf("Mouse detached\n");
+				break;
+			case DEVQ_DEVICE_UNKNOWN:
+				printf("Unknown device detached\n");
+				break;
+			}
 			break;
 		case DEVQ_NOTICE:
 			printf("Notice received\n");
