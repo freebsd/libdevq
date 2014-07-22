@@ -228,16 +228,15 @@ devq_event_get_type(struct devq_event *e)
 }
 
 static void
-usb_vendor_product(struct devq_device *d)
+vendor_product(struct devq_device *d, const char *ids)
 {
-	const char *usbids = PREFIX "/share/usbids/usb.ids";
 	FILE *f;
 	char *line = NULL;
 	const char *walk;
 	size_t linecap = 0;
 	ssize_t linelen;
 
-	if ((f = fopen(usbids, "r")) == NULL)
+	if ((f = fopen(ids, "r")) == NULL)
 		return;
 
 	while ((linelen = getline(&line, &linecap, f)) > 0) {
@@ -280,6 +279,8 @@ usb_vendor_product(struct devq_device *d)
 static void
 device_vendor_product(struct devq_event *e)
 {
+	const char *usbids = PREFIX "/share/usbids/usb.ids";
+	const char *pciids = PREFIX "/share/pciids/pci.ids";
 
 	e->device->vstr = strstr(e->raw, "vendor=");
 	if (e->device->vstr == NULL)
@@ -290,7 +291,10 @@ device_vendor_product(struct devq_event *e)
 	e->device->pstr += 8;
 
 	if (*e->device->driver == 'u')
-		usb_vendor_product(e->device);
+		vendor_product(e->device, usbids);
+
+	if (e->device->vendor == NULL)
+		vendor_product(e->device, pciids);
 }
 
 struct devq_device *
