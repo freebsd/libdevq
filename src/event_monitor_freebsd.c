@@ -332,7 +332,6 @@ devq_event_get_device(struct devq_event *e)
 			break;
 		}
 	}
-	printf("%s\n", e->device->path);
 
 	if (e->device->driver == NULL) {
 		walk--;
