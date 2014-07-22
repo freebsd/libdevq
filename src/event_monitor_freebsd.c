@@ -74,6 +74,11 @@ struct devq_device {
 	devq_device_t type;
 	devq_class_t class;
 	char *path;
+	char *driver;
+	char *vendor;
+	char *product;
+	const char *vstr;
+	const char *pstr;
 };
 
 struct devq_event {
@@ -85,7 +90,7 @@ struct devq_event {
 static ssize_t
 socket_getline(struct devq_evmon *evmon)
 {
-       ssize_t ret, cap, sz = 0;
+       ssize_t ret, sz = 0;
        char c;
 
        for (;;) {
@@ -183,8 +188,6 @@ struct devq_event *
 devq_event_monitor_read(struct devq_evmon *evm)
 {
 	struct devq_event *e;
-	size_t r=0;
-	char *to;
 
 	if (socket_getline(evm) < 0)
 		return (NULL);
@@ -224,6 +227,72 @@ devq_event_get_type(struct devq_event *e)
 	return (e->type);
 }
 
+static void
+usb_vendor_product(struct devq_device *d)
+{
+	const char *usbids = PREFIX "/share/usbids/usb.ids";
+	FILE *f;
+	char *line = NULL;
+	const char *walk;
+	size_t linecap = 0;
+	ssize_t linelen;
+
+	if ((f = fopen(usbids, "r")) == NULL)
+		return;
+
+	while ((linelen = getline(&line, &linecap, f)) > 0) {
+		if (d->vendor == NULL) {
+			if (strncmp(line, d->vstr + 2, 4) == 0) {
+				walk = line + 4;
+
+				while (isspace(*walk))
+					walk++;
+
+				if (line[linelen -1] == '\n')
+					line[linelen - 1 ] = '\0';
+
+				d->vendor = strndup(walk, strlen(walk));
+			}
+		} else {
+			walk = line;
+			while (isspace(*walk))
+				walk++;
+
+			if (strncmp(walk, d->pstr + 2, 4) == 0) {
+				walk += 4;
+
+				while (isspace(*walk))
+					walk++;
+
+				if (line[linelen -1] == '\n')
+					line[linelen - 1 ] = '\0';
+
+				d->product = strndup(walk, strlen(walk));
+			}
+		}
+		
+	}
+	fclose(f);
+	free(line);
+
+}
+
+static void
+device_vendor_product(struct devq_event *e)
+{
+
+	e->device->vstr = strstr(e->raw, "vendor=");
+	if (e->device->vstr == NULL)
+		return;
+
+	e->device->vstr += 7;
+	e->device->pstr = strstr(e->raw, "product=");
+	e->device->pstr += 8;
+
+	if (*e->device->driver == 'u')
+		usb_vendor_product(e->device);
+}
+
 struct devq_device *
 devq_event_get_device(struct devq_event *e)
 {
@@ -239,7 +308,7 @@ devq_event_get_device(struct devq_event *e)
 	if (e->device != NULL)
 		return (e->device);
 
-	e->device = calloc(1, sizeof(struct devq_device *));
+	e->device = calloc(1, sizeof(struct devq_device));
 	if (e->device == NULL)
 		return (NULL);
 
@@ -248,8 +317,9 @@ devq_event_get_device(struct devq_event *e)
 
 	line = e->raw + 1;
 	walk = line;
-	while (*walk != ' ')
+	while (!isspace(*walk))
 		walk++;
+
 	asprintf(&e->device->path, "/dev/%.*s", (int)(walk - line), line);
 
 	for (i = 0; hw_types[i].driver != NULL; i++) {
@@ -258,9 +328,20 @@ devq_event_get_device(struct devq_event *e)
 		    isdigit(*(line + strlen(hw_types[i].driver)))) {
 			e->device->type = hw_types[i].type;
 			e->device->class = hw_types[i].class;
+			e->device->driver = strdup(hw_types[i].driver);
 			break;
 		}
 	}
+	printf("%s\n", e->device->path);
+
+	if (e->device->driver == NULL) {
+		walk--;
+		while (isdigit(*walk))
+			walk--;
+		e->device->driver = strndup(line, walk - line);
+	}
+
+	device_vendor_product(e);
 
 	return (e->device);
 }
@@ -274,7 +355,12 @@ devq_event_dump(struct devq_event *e)
 void
 devq_event_free(struct devq_event *e)
 {
-	free(e->device);
+	if (e->device != NULL) {
+		free(e->device->path);
+		free(e->device->driver);
+		free(e->device);
+	}
+
 	free(e->raw);
 	free(e);
 }
@@ -307,4 +393,24 @@ devq_device_get_path(struct devq_device *d)
 		return (NULL);
 
 	return (d->path);
+}
+
+const char *
+devq_device_get_product(struct devq_device *d)
+{
+
+	if (d == NULL)
+		return (NULL);
+
+	return (d->product);
+}
+
+const char *
+devq_device_get_vendor(struct devq_device *d)
+{
+
+	if (d == NULL)
+		return (NULL);
+
+	return (d->vendor);
 }

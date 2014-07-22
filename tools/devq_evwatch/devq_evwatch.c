@@ -38,6 +38,7 @@ main(int argc, char **argv)
 	struct devq_evmon *e;
 	struct devq_event *ev;
 	struct devq_device *dev;
+	const char *vendor, *product;
 	bool verbose = false;
 
 	if (argc == 2 && strcmp(argv[1], "-v") == 0)
@@ -73,7 +74,12 @@ main(int argc, char **argv)
 				printf("Unknown device attached\n");
 				break;
 			}
-			printf("Device path: %s\n", devq_device_get_path(dev));
+			vendor = devq_device_get_vendor(dev);
+			product = devq_device_get_product(dev);
+			printf("Device path: %s; vendor: %s; product: %s\n",
+			    devq_device_get_path(dev),
+			    vendor ? vendor : "unknown",
+			    product ? product : "unknown");
 			break;
 		case DEVQ_DETACHED:
 			dev = devq_event_get_device(ev);
