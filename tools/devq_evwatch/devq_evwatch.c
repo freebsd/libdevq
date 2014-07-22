@@ -65,7 +65,7 @@ main(int argc, char **argv)
 		}
 		
 		if (verbose)
-			printf("%s", devq_event_dump(ev));
+			printf("%s\n", devq_event_dump(ev));
 		devq_event_free(ev);
 	}
 
