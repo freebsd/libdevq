@@ -144,10 +144,11 @@ devq_event_monitor_init(void)
 	if (evm->kq == -1) {
 		close(evm->fd);
 		free(evm);
+		evm = NULL;
+	} else {
+		EV_SET(&ev, evm->fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
+		kevent(evm->kq, &ev, 1, NULL, 0, NULL);
 	}
-
-	EV_SET(&ev, evm->fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
-	kevent(evm->kq, &ev, 1, NULL, 0, NULL);
 
 	return (evm);
 }
