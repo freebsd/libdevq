@@ -59,6 +59,7 @@ devq_device_get_devpath_from_fd(int fd,
 	size_t len;
 
 	ret = 0;
+	head = NULL;
 
 	procstat = procstat_open_sysctl();
 	if (procstat == NULL)
