@@ -43,6 +43,13 @@
 # include <dirent.h>
 #endif
 
+#if ! defined(HAVE_DEVSYSCTLS)
+#include <sys/pciio.h>
+#include <sys/ioctl.h>
+
+#include <fcntl.h>
+#endif
+
 #include "libdevq.h"
 
 int
@@ -197,6 +204,13 @@ devq_device_get_pciid_from_fd(int fd,
 	const char *busid_format;
 	size_t sysctl_value_len;
 
+#if ! defined(HAVE_DEVSYSCTLS)
+	int pci;
+	struct pci_conf_io pc;
+	struct pci_conf conf;
+	struct pci_match_conf drv_pattern;
+#endif
+
 	/*
 	 * FIXME: This function is specific to DRM devices.
 	 */
@@ -238,6 +252,8 @@ devq_device_get_pciid_from_fd(int fd,
 
 	if (ret != 0)
 		return (-1);
+
+#if defined(HAVE_DEVSYSCTLS)
 
 	ret = sscanf(sysctl_value, busid_format,
 	    &domain, &bus, &slot, &function);
@@ -311,6 +327,49 @@ devq_device_get_pciid_from_fd(int fd,
 		errno = EINVAL;
 		return (-1);
 	}
+
+#else
+	memset(&pc, 0, sizeof(struct pci_conf_io));
+	pc.matches = &conf;
+	pc.match_buf_len = sizeof(conf);
+	drv_pattern.flags = PCI_GETCONF_MATCH_DOMAIN | PCI_GETCONF_MATCH_BUS |
+	                           PCI_GETCONF_MATCH_DEV | PCI_GETCONF_MATCH_FUNC;
+
+	ret = sscanf(sysctl_value, busid_format,
+	    &drv_pattern.pc_sel.pc_domain,
+		&drv_pattern.pc_sel.pc_bus,
+		&drv_pattern.pc_sel.pc_dev,
+		&drv_pattern.pc_sel.pc_func);
+	if (ret != 4) {
+		errno = ENOENT;
+		return (-1);
+	}
+
+	pc.patterns = &drv_pattern;
+	pc.num_patterns = 1;
+	pc.pat_buf_len = sizeof(struct pci_match_conf);
+
+	pci = open("/dev/pci", O_RDONLY, 0);
+	if (pci == -1) {
+		return (-1);
+	}
+
+	if (ioctl(pci, PCIOCGETCONF, &pc) == -1) {
+		close(pci);
+		return (-1);
+	}
+
+	close(pci);
+
+	if (pc.num_matches != 1) {
+		errno = EINVAL;
+		return (-1);
+	}
+
+	*vendor_id = conf.pc_vendor;
+	*device_id = conf.pc_device;
+
+#endif
 
 	return (0);
 }
