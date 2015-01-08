@@ -1,0 +1,188 @@
+.\" Copyright (c) 2014 Baptiste Daroussin <bapt@FreeBSD.org>
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.Dd January 08, 2015
+.Dt LIBDEVQ 3
+.Os
+.Sh NAME
+.Nm devq_device_get_class ,
+.Nm devq_device_get_devpath_from_fd ,
+.Nm devq_device_get_path ,
+.Nm devq_device_get_pciid_from_fd ,
+.Nm devq_device_get_product ,
+.Nm devq_device_get_type ,
+.Nm devq_device_get_vendor ,
+.Nm devq_drm_get_drvname_from_fd ,
+.Nm devq_event_dump ,
+.Nm devq_event_free ,
+.Nm devq_event_get_device ,
+.Nm devq_event_get_type ,
+.Nm devq_event_monitor_fini ,
+.Nm devq_event_monitor_get_fd ,
+.Nm devq_event_monitor_init ,
+.Nm devq_event_monitor_poll ,
+.Nm devq_event_monitor_read ,
+.Nd Generic Device Query and Monitor interface
+.Sh LIBRARY
+.Lb libdevq
+.Sh SYNOPSIS
+.In libdevq.h
+.Ft devq_class_t
+.Fo devq_device_get_class
+.Fa "struct devq_device *device"
+.Fc
+.Ft const char *
+.Fo devq_device_get_devpath_from_fd
+.Fa "struct devq_device *device"
+.Fc
+.Ft const char *
+.Fo devq_device_get_path
+.Fa "struct devq_device *device"
+.Fc
+.Ft int
+.Fo devq_device_get_pciid_from_fd
+.Fa "int fd"
+.Fa "int *vendor_id"
+.Fa "size_t *driver_name_len"
+.Fc
+.Ft const char *
+.Fo devq_device_get_product
+.Fa "struct devq_device *device"
+.Fc
+.Ft devq_device_t
+.Fo devq_device_get_type
+.Fa "struct devq_device *device"
+.Fc
+.Ft const char *
+.Fo devq_device_get_vendor
+.Fa "struct devq_device *device"
+.Fc
+.Ft int
+.Fo devq_drm_get_drvname_from_fd
+.Fa "int fd"
+.Fa "char *driver_name"
+.Fa "size_t *driver_name_len"
+.Fc
+.Ft const char *
+.Fo devq_event_dump
+.Fa "struct devq_event *"
+.Fc
+.Ft void
+.Fo devq_event_free
+.Fa "struct devq_event *"
+.Fc
+.Ft struct devq_device *
+.Fo devq_event_get_deviced
+.Fa "struct devq_event *"
+.Fc
+.Ft devq_event_t
+.Fo devq_event_get_type
+.Fa "struct devq_event *"
+.Fc
+.Ft void
+.Fo devq_event_monitor_fini
+.Fa "struct devq_evmon *"
+.Fc
+.Ft int
+.Fo devq_event_monitor_get_fd
+.Fa "struct devq_evmon *"
+.Fc
+.Ft struct devq_evmon *
+.Fo devq_event_monitor_init
+.Fa "void"
+.Fc
+.Ft int
+.Fo devq_event_monitor_poll
+.Fa "struct devq_evmon *"
+.Fc
+.Ft struct devq_event *
+.Fo devq_event_monitor_read
+.Fa "struct devq_evmon *"
+.Fc
+.Sh DESCRIPTION
+Let's describe here
+.Sh REFERENCE
+This section documents the functions, types, and variable available via
+.In libdevq.h .
+.Ss Types
+.Bl -ohang
+.It Vt "devq_class_t"
+A list of event class. Values are:
+.Bl -tag -width "DEVQ_CLASS_UNKNOWN" -compact -offset indent
+.It Em DEVQ_CLASS_UNKNOWN
+Unknown class
+.It Em DEVQ_CLASS_INPUT
+Input device class
+.El
+.It Vt "devq_device_t"
+A list of device types.  Values are:
+.Bl -tag -width "DEVQ_DEVICE_TOUCHSCREEN" -compact -offset indent
+.It Em DEVQ_DEVICE_UNKNOWN
+Unknown device type
+.It Em DEVQ_DEVICE_KEYBOARD
+Device is a keyboard
+.It Em DEVQ_DEVICE_MOUSE
+Device is a mouse
+.It Em DEVQ_DEVICE_JOYSTICK
+Device is a joystick
+.It Em DEVQ_DEVICE_TOUCHPAD
+Device is a touchpad
+.It Em DEVQ_DEVICE_TOUCHSCREEN
+Device is a touchscreen
+.El
+.It Vt "devq_event_t"
+A list of event types. Values are:
+.Bl -tag -width "DEVQ_ATTACHED" -compact -offset indent
+.It Em DEVQ_ATTACHED
+A device have been attached
+.It Em DEVQ_DETACHED
+A device have been detached
+.It Em DEVQ_NOTICE
+An information is available
+.It Em DEVQ_UNKNOWN
+An unknown event has occured
+.El
+.It Vt "struct devq_device"
+An opaque structure representing a device
+.It Vt "struct devq_event"
+An opaque structure representing an event
+.It Vt "struct devq_evmon"
+An opaque structure representing an event monitor
+.El
+.Ss Functions
+.Bl -ohang
+.It Fn devq_device_get_class
+Return the device class for a given
+.Va device .
+.El
+.Sh SEE ALSO
+.Xr devinfo 3 ,
+.Xr devctl 4 ,
+.Xr devclass 9
+.Sh AUTHORS
+The
+.Nm
+library was written by:
+.Pp
+.An Baptiste Daroussin Aq Mt bapt@FreeBSD.org ,
+.An Jean-S\['e]bastien P\['e]dron Aq Mt dumbbell@FreeBSD.org ,
+.An Koop Mast Aq Mt kwm@FreeBSD.org ,

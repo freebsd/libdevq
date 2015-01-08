@@ -23,3 +23,6 @@ devq_lsdri_LDADD = libdevq.la
 
 pkgconfigdir = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA = src/libdevq-1.0.pc
+
+dist_man_MANS=	doc/libdevq.3
+mandir=	$(prefix)/man
