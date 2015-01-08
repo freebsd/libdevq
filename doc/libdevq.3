@@ -24,6 +24,9 @@
 .Dt LIBDEVQ 3
 .Os
 .Sh NAME
+.Nm libdevq
+.Nd Generic Device Query and Monitor interface
+.Sh LIBRARY
 .Nm devq_device_get_class ,
 .Nm devq_device_get_devpath_from_fd ,
 .Nm devq_device_get_path ,
@@ -40,10 +43,7 @@
 .Nm devq_event_monitor_get_fd ,
 .Nm devq_event_monitor_init ,
 .Nm devq_event_monitor_poll ,
-.Nm devq_event_monitor_read ,
-.Nd Generic Device Query and Monitor interface
-.Sh LIBRARY
-.Lb libdevq
+.Nm devq_event_monitor_read
 .Sh SYNOPSIS
 .In libdevq.h
 .Ft devq_class_t
