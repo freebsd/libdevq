@@ -104,8 +104,6 @@ Portable query and monitoring library (libdevq, -ldevq)
 .Fo devq_event_monitor_read
 .Fa "struct devq_evmon *"
 .Fc
-.Sh DESCRIPTION
-Let's describe here
 .Sh REFERENCE
 This section documents the functions, types, and variable available via
 .In libdevq.h .
@@ -155,10 +153,64 @@ An opaque structure representing an event
 An opaque structure representing an event monitor
 .El
 .Ss Functions
+Device query functions.
 .Bl -ohang
+.It Fn devq_device_get_devpath_from_fd
+Returns the absolute path of the device.
+.It Fn devq_device_get_pciid_from_fd
+Return the vendor_id and device_id of the supplied fd.
+.Sy Currently
+only for DRM devices.
+.It Fn devq_drm_get_drvname_from_fd
+Returns the driver name.
+.Pp
+Device notification API
+.It Fn devq_event_dump
+Returns the raw devq_event content.
+.It Fn devq_event_free
+Frees the devq_event struct.
+.It Fn devq_event_monitor_init
+function setups the monitoring code.
+.It Fn devq_event_monitor_fini
+function cleanup the event monitering code.
+.It Fn devq_event_monitor_get_fd
+Return the fd of the devq_evmon.
+.It Fn devq_event_monitor_poll
+Returns 1 if there are events waiting, otherwise 0.
+.It Fn devq_event_monitor_read
+Returns a devq_event struct otherwise NULL.
+.It Fn devq_event_get_type
+Returns what kind of event this is.
+.It Fn devq_event_get_deviced
+Returns information about the device on ATTACH or DETACH events. Otherwise NULL.
+.It Fn devq_device_get_type
+Returns the type of the device the event is about.
 .It Fn devq_device_get_class
-Return the device class for a given
-.Va device .
+Return the device class for a given device.
+.It Fn devq_device_get_path
+Return the absolute path of the device.
+.It Fn devq_device_get_product
+Return the product of the device the event is about.
+.It Fn devq_device_get_vendor
+Return the vendor of the device the event is about.
+.El
+.Sh EXAMPLES
+fill me...
+.Sh Return values
+.Rv -std
+.Sh ERRORS
+The functions in
+.Fn libdevq
+may fail with the following errors:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Bad File Descriptor
+.It Bq Er ENOMEM
+Cannot allocate memory
+.It Bq Er ENOENT
+No such file or directory
+.It Bq Er EINVAL
+Invalid argument
 .El
 .Sh SEE ALSO
 .Xr devinfo 3 ,
