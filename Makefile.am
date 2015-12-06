@@ -4,9 +4,10 @@ include_HEADERS = include/libdevq.h
 
 lib_LTLIBRARIES = libdevq.la
 
-libdevq_la_SOURCES = src/device.c					\
-		     src/device_drm.c \
-		     src/event_monitor_@opsys@.c
+libdevq_la_SOURCES = src/freebsd/device.c					\
+		     src/freebsd/device_drm.c \
+		     src/freebsd/event_monitor_freebsd.c
+
 libdevq_la_CPPFLAGS = -I$(top_srcdir)/include -DPREFIX="\"$(prefix)\""
 
 if ENABLE_PROGRAMS
