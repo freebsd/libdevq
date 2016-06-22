@@ -241,8 +241,9 @@ devq_compare_vgapci_busaddr(int i, int *domain, int *bus, int *slot,
 }
 
 int
-devq_device_get_pciid_from_fd(int fd,
-    int *vendor_id, int *device_id)
+devq_device_get_pciid_full_from_fd(int fd,
+    int *vendor_id, int *device_id, int *subvendor_id,
+    int *subdevice_id, int *revision_id)
 {
 	int i, ret, dev, domain, bus, slot, function;
 	char sysctl_name[32], sysctl_value[128];
@@ -336,12 +337,27 @@ devq_device_get_pciid_from_fd(int fd,
 	if (ret != 0)
 		return (-1);
 
-	ret = sscanf(sysctl_value, "vendor=0x%04x device=0x%04x",
-	    vendor_id, device_id);
+	ret = sscanf(sysctl_value, "vendor=0x%04x device=0x%04x subversion=0x%04x subdevice=0x%04x",
+	    vendor_id, device_id, subvendor_id, subdevice_id);
 	if (ret != 2) {
 		errno = EINVAL;
 		return (-1);
 	}
 
+	/* XXX: add code to find out revision id */
+	revision_id = 0;
+
 	return (0);
 }
+
+int
+devq_device_get_pciid_from_fd(int fd,
+    int *vendor_id, int *device_id)
+{
+	int *subvendor_id, *subdevice_id, *revision_id;
+
+	return devq_device_get_pciid_full_from_fd(fd,
+		vendor_id, device_id, subvendor_id,
+		subdevice_id, revision_id);
+}
+
