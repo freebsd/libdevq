@@ -48,7 +48,7 @@ print_drm_info(int fd)
 	ret = devq_device_get_devpath_from_fd(fd,
 	    NULL, &device_path_len);
 	if (ret < 0) {
-		perror("devq_device_get_devpath_from_fd");
+		fprintf(stderr, "Warning: unable to device path\n");
 		return (-1);
 	}
 
@@ -56,7 +56,7 @@ print_drm_info(int fd)
 	ret = devq_device_get_devpath_from_fd(fd,
 	    device_path, &device_path_len);
 	if (ret < 0) {
-		perror("devq_device_get_devpath_from_fd");
+		fprintf(stderr, "Warning: Unable to device path\n");
 		return (-1);
 	}
 
@@ -66,7 +66,7 @@ print_drm_info(int fd)
 
 	ret = devq_device_drm_get_drvname_from_fd(fd, NULL, &driver_name_len);
 	if (ret < 0) {
-		perror("devq_device_drm_get_drvname_from_fd");
+		printf("    Driver name:   Unknown\n");
 		return (-1);
 	}
 
@@ -74,7 +74,7 @@ print_drm_info(int fd)
 	ret = devq_device_drm_get_drvname_from_fd(fd,
 	    driver_name, &driver_name_len);
 	if (ret < 0) {
-		perror("devq_device_drm_get_drvname_from_fd");
+		fprintf(stderr, "Warning: Unable to determine driver name\n");
 		return (-1);
 	}
 
@@ -84,7 +84,7 @@ print_drm_info(int fd)
 
 	ret = devq_device_get_pciid_from_fd(fd, &vendor_id, &device_id);
 	if (ret < 0) {
-		perror("devq_get_device_pciid_from_fd");
+		fprintf(stderr, "Warning: Unable to determine vendor and device ID\n");
 		return (-1);
 	}
 
@@ -103,7 +103,7 @@ main(int argc, char *argv[])
 		for (int i = 1; i < argc; ++i) {
 			fd = open(argv[i], O_RDWR);
 			if (fd < 0) {
-				perror(argv[i]);
+				fprintf(stderr, "%s\n", argv[i]);
 				continue;
 			}
 
@@ -130,7 +130,7 @@ main(int argc, char *argv[])
 
 			fd = open(path, O_RDWR);
 			if (fd < 0) {
-				perror(path);
+				fprintf(stderr, "%s\n", path);
 				continue;
 			}
 
