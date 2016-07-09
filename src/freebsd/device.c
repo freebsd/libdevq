@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014 Jean-Sebastien Pedron <dumbbell@FreeBSD.org>
+ * Copyright (c) 2016 Koop Mast <kwm@FreeBSD.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +32,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/pciio.h>
 
 #if defined(HAVE_LIBPROCSTAT_H)
 # include <sys/param.h>
@@ -237,6 +240,67 @@ devq_compare_vgapci_busaddr(int i, int *domain, int *bus, int *slot,
 	/* FIXME: What domain to assume? */
 	*domain = 0;
 
+	return (0);
+}
+
+int
+devq_device_get_pcibusaddr(int fd, int *domain,
+	int *bus, int *slot, int *function)
+{
+	int i, dev, ret;
+	char sysctl_name[32], sysctl_value[128];
+	const char *busid_format;
+	size_t sysctl_value_len;
+
+	/*
+	 * FIXME: This function is specific to DRM devices.
+	 */
+
+	/*
+	 * We don't need the driver name, but this function already
+	 * walks the hw.dri.* tree and returns the number in
+	 * hw.dri.$number.
+	 */
+	dev = devq_device_drm_get_drvname_from_fd(fd, NULL, NULL);
+	if (dev < 0)
+		return (-1);
+
+	/*
+	 * Read the hw.dri.$n.busid sysctl to get the location of the
+	 * device on the PCI bus. We can then use this location to find
+	 * the corresponding dev.vgapci.$m tree.
+	 */
+	sprintf(sysctl_name, "hw.dri.%d.busid", dev);
+
+	busid_format = "pci:%d:%d:%d.%d";
+	sysctl_value_len = sizeof(sysctl_value);
+	memset(sysctl_value, 0, sysctl_value_len);
+	ret = sysctlbyname(sysctl_name, sysctl_value, &sysctl_value_len,
+	    NULL, 0);
+
+	if (ret != 0) {
+		/*
+		 * If hw.dri.$n.busid isn't available, fallback on
+		 * hw.dri.$n.name.
+		 */
+		busid_format = "%*s %*s pci:%d:%d:%d.%d";
+		sysctl_value_len = sizeof(sysctl_value);
+		memset(sysctl_value, 0, sysctl_value_len);
+		sprintf(sysctl_name, "hw.dri.%d.name", dev);
+		ret = sysctlbyname(sysctl_name, sysctl_value, &sysctl_value_len,
+		    NULL, 0);
+	}
+
+	if (ret != 0)
+		return (-1);
+
+	ret = sscanf(sysctl_value, busid_format,
+	    domain, bus, slot, function);
+	if (ret != 4) {
+		errno = ENOENT;
+		return (-1);
+	}
+	
 	return (0);
 }
 

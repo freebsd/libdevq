@@ -63,6 +63,10 @@ int		devq_device_get_pciid_full_from_fd(int fd,
 		    int *subversion_id, int *subdevice_id,
 		    int *revision_id);
 
+int		devq_device_get_pcibusaddr(int fd,
+		    int *domain, int *bus,
+		    int *slot, int *function);
+
 int		devq_device_drm_get_drvname_from_fd(int fd,
 		    char *driver_name, size_t *driver_name_len);
 devq_device_t	devq_device_get_type(struct devq_device *);
