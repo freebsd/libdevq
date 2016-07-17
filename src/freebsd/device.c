@@ -401,9 +401,9 @@ devq_device_get_pciid_full_from_fd(int fd,
 	if (ret != 0)
 		return (-1);
 
-	ret = sscanf(sysctl_value, "vendor=0x%04x device=0x%04x subversion=0x%04x subdevice=0x%04x",
+	ret = sscanf(sysctl_value, "vendor=0x%04x device=0x%04x subvendor=0x%04x subdevice=0x%04x",
 	    vendor_id, device_id, subvendor_id, subdevice_id);
-	if (ret != 2) {
+	if (ret != 4) {
 		errno = EINVAL;
 		return (-1);
 	}
