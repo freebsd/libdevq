@@ -38,8 +38,8 @@ Portable query and monitoring library (libdevq, -ldevq)
 .Fc
 .Ft const char *
 .Fo devq_device_get_devpath_from_fd
-.Fa "int fd" 
-.Fa "char *path" 
+.Fa "int fd"
+.Fa "char *path"
 .Fa "size_t *path_len"
 .Fc
 .Ft const char *
@@ -47,10 +47,26 @@ Portable query and monitoring library (libdevq, -ldevq)
 .Fa "struct devq_device *device"
 .Fc
 .Ft int
+.Fo devq_device_get_pcibusaddr
+.Fa "int *domain"
+.Fa "int *bus"
+.Fa "int *slot"
+.Fa "int *function"
+.Fc
+.Ft int
 .Fo devq_device_get_pciid_from_fd
 .Fa "int fd"
 .Fa "int *vendor_id"
 .Fa "int *device_id"
+.Fc
+.Ft int
+.Fo devq_device_get_pciid_full_from_fd
+.Fa "int fd"
+.Fa "int *vendor_id"
+.Fa "int *device_id"
+.Fa "int *subvendor_id"
+.Fa "int *subdevice_id"
+.Fa "int *revision_id"
 .Fc
 .Ft const char *
 .Fo devq_device_get_product
@@ -157,8 +173,17 @@ An opaque structure representing an event monitor
 .Ss Functions
 Device query functions.
 .Bl -ohang
+.It Fn devq_device_get_pcibusaddr
+Return the pci bus location: domain, bus, slot and function.
+.Sy Currently
+only for DRM devices.
 .It Fn devq_device_get_devpath_from_fd
 Returns the absolute path of the device.
+.It Fn devq_device_get_pciid_full_from_fd
+Return the vendor_id, device_id, subvendor_id, subdevice_id and revision_id
+of the supplied fd.
+.Sy Currently
+only for DRM devices.
 .It Fn devq_device_get_pciid_from_fd
 Return the vendor_id and device_id of the supplied fd.
 .Sy Currently
