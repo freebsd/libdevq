@@ -418,10 +418,10 @@ int
 devq_device_get_pciid_from_fd(int fd,
     int *vendor_id, int *device_id)
 {
-	int *subvendor_id, *subdevice_id, *revision_id;
+	int subvendor_id, subdevice_id, revision_id;
 
 	return devq_device_get_pciid_full_from_fd(fd,
-		vendor_id, device_id, subvendor_id,
-		subdevice_id, revision_id);
+		vendor_id, device_id, &subvendor_id,
+		&subdevice_id, &revision_id);
 }
 
